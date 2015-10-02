@@ -1,0 +1,19 @@
+{
+  "name": "articlewordcounter",
+  "version": "1.0.0",
+  "description": "Count words in MediaWiki articles using the MW API",
+  "main": "wordcounter.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "MediaWiki",
+    "wordcount"
+  ],
+  "author": "Dror S. [FFS]",
+  "license": "MIT",
+  "dependencies": {
+    "csv-string": "^2.3.0",
+    "nodemw": "^0.7.3"
+  }
+}
