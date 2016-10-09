@@ -14,6 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "csv-string": "^2.3.0",
-    "nodemw": "^0.7.3"
+    "nodemw": "^0.7.3",
+    "sugar": "^1.4.1"
   }
 }

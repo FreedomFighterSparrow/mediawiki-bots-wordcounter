@@ -9,6 +9,8 @@
  * MW's search API - doesn't always work
  * sugarjs "words" - splits string to array, then can use array.length
  * Wordcount.js
+ * https://www.npmjs.com/package/wordcount (doesn't work well)
+ * https://www.npmjs.com/package/text-stats
  *
  * All of the above do a very simple word count.
  */
@@ -16,7 +18,6 @@
 var bot = require( 'nodemw' ),
 	client = new bot( 'config.json'),
 	csv = require('csv-string');
-
 
 	/*
 	getLanguageLinks( 'טיפולי פוריות', function( err, data ) {
@@ -28,7 +29,7 @@ var bot = require( 'nodemw' ),
 client.getAllPages( function( err, pages ) {
 	console.log( 'All pages: %d', pages.length );
 
-	//pages = pages.slice(1,100);
+	pages = pages.slice(1,20);
 	pages.forEach( function( page ) {
 		//@todo get main category. Right now I can't do this through the API, as the
 		// db doesn't hold the categories in order,
@@ -36,7 +37,7 @@ client.getAllPages( function( err, pages ) {
 		//@todo output all to CSV
 		//console.log( page.title );
 		var output = [ page.title ];
-		getWordCount(page.title, function(err, metadata) {
+		alternativeWordGet(page.title, function(err, metadata) {
 			output.push( metadata );
 
 			getLanguageLinks(page.title, function(err, links) {
@@ -68,24 +69,44 @@ client.getAllPages( function( err, pages ) {
 
 
 
-function getWordCount(keyword, callback) {
+function getWordCount(title, callback) {
+	mwSearchWordCount( title, function(err, count) {
+		if( err || !Number.isInteger( count ) ) {
+			alternativeWordGet( title, function(err, count) {
+				callback(err, count );
+			})
+		} else {
+			callback(err, count );
+		}
+	})
+}
+
+function mwSearchWordCount( title, callback ) {
 	var params = {
 		action: 'query',
 		list: 'search',
-		srsearch: keyword,
+		srsearch: title,
 		srprop: 'wordcount'
 	};
 
 	client.api.call(params, function(err, data) {
-		var wordcount = 'error';
+		var count = 'error';
 		if( !err && data && data.search ) {
 			var firstItem = getFirstItem(data.search);
 			if( firstItem ) {
-				wordcount = firstItem.wordcount;
+				count = firstItem.wordcount;
 			}
 		}
-		callback(err, wordcount );
+		callback(err, count );
 	});
+}
+
+function alternativeWordGet( article, callback ) {
+	require('sugar');
+
+	client.getArticle( article, function(err, content) {
+		callback(err, content.words().length);
+	})
 }
 
 function getLanguageLinks(title, callback) {
